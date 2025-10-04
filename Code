@@ -1,0 +1,73 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
+from sklearn.metrics import confusion_matrix
+
+
+df = pd.read_csv('/content/diabetes.csv')
+
+print(df.head(5))
+
+print(df.info())
+
+print(df.describe())
+
+print(df['Outcome'].value_counts())
+
+print(df['Outcome'].value_counts(normalize=True)*100)
+
+sns.histplot(df['Glucose'],kde=True)
+plt.xlabel('Glucose')
+plt.ylabel('Density')
+plt.title('Distribution of Glucose')
+plt.show()
+
+sns.histplot(df['BMI'],kde=True)
+plt.xlabel('BMI')
+plt.ylabel('Density')
+plt.title('Distribution of BMI')
+plt.show()
+
+sns.countplot(y=df['Outcome'])
+plt.xlabel('Count')
+plt.ylabel('Outcome')
+plt.title('Distribution of Outcome')
+plt.show()
+
+
+df['Glucose'] = df['Glucose'].replace(0, df['Glucose'].median())
+df['BloodPressure'] = df['BloodPressure'].replace(0, df['BloodPressure'].median())
+df['SkinThickness'] = df['SkinThickness'].replace(0, df['SkinThickness'].median())
+df['Insulin'] = df['Insulin'].replace(0, df['Insulin'].median())
+df['BMI'] = df['BMI'].replace(0, df['BMI'].median())
+
+print(df.describe())
+
+X=df.drop('Outcome', axis=1)
+y=df['Outcome']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+model = LogisticRegression()
+model.fit(X_train_scaled, y_train)
+
+y_pred = model.predict(X_test_scaled)
+
+accuracy = accuracy_score(y_test, y_pred)
+print("\nAccuracy:\n", accuracy)
+
+confusion_matrix = confusion_matrix(y_test, y_pred)
+print("\nConfusion Matrix:\n",confusion_matrix)
+
+classification_rep = classification_report(y_test, y_pred)
+print("\nClassification Report:\n",classification_rep)
